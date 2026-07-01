@@ -18,7 +18,7 @@ from typing import AsyncGenerator
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 import config
 from agent import run_agent
@@ -71,8 +71,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # ── Endpoints ──────────────────────────────────────────────────────────────────
+
+@app.get("/")
+async def root():
+    """Redirect root to API documentation."""
+    return RedirectResponse(url="/docs")
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Prevent 404 errors for browser favicon requests."""
+    return JSONResponse(content={})
 
 @app.get("/health", response_model=HealthResponse, tags=["system"])
 async def health() -> HealthResponse:
